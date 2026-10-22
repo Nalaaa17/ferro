@@ -238,34 +238,13 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> with SingleTickerPr
                                 ),
                               ),
                               const SizedBox(height: FerroDimensions.space4),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      '${currentSong.artist} — ${currentSong.album}',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: FerroTypography.body.copyWith(
-                                        color: FerroColors.onSurfaceMuted,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: FerroDimensions.space8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                                    decoration: BoxDecoration(
-                                      color: FerroColors.surfaceHigh,
-                                      borderRadius: BorderRadius.circular(4.0),
-                                    ),
-                                    child: Text(
-                                      currentSong.format,
-                                      style: FerroTypography.captionBold.copyWith(
-                                        color: FerroColors.primary,
-                                        fontSize: 10.0,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              Text(
+                                '${currentSong.artist} — ${currentSong.album}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: FerroTypography.body.copyWith(
+                                  color: FerroColors.onSurfaceMuted,
+                                ),
                               ),
                             ],
                           ),
@@ -288,13 +267,28 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> with SingleTickerPr
                     ),
                     const SizedBox(height: FerroDimensions.space16),
 
-                    // Interactive Seek Bar
+                    // Interactive Seek Bar with FLAC format indicator below the scrubber
                     FerroSeekBar(
                       position: _player.position,
                       duration: _player.duration,
                       bufferedPosition: _player.bufferedPosition,
                       onChanged: _player.seek,
                       onChangeEnd: _player.seek,
+                      centerWidget: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 2.0),
+                        decoration: BoxDecoration(
+                          color: FerroColors.surfaceHigh,
+                          borderRadius: BorderRadius.circular(4.0),
+                          border: Border.all(color: FerroColors.divider, width: 0.8),
+                        ),
+                        child: Text(
+                          currentSong.format,
+                          style: FerroTypography.captionBold.copyWith(
+                            color: FerroColors.primary,
+                            fontSize: 10.0,
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: FerroDimensions.space16),
 

@@ -11,6 +11,7 @@ class FerroSeekBar extends StatefulWidget {
     this.onChanged,
     this.onChangeEnd,
     this.showTimeLabels = true,
+    this.centerWidget,
   });
 
   final Duration position;
@@ -19,6 +20,7 @@ class FerroSeekBar extends StatefulWidget {
   final ValueChanged<Duration>? onChanged;
   final ValueChanged<Duration>? onChangeEnd;
   final bool showTimeLabels;
+  final Widget? centerWidget;
 
   @override
   State<FerroSeekBar> createState() => _FerroSeekBarState();
@@ -158,11 +160,13 @@ class _FerroSeekBarState extends State<FerroSeekBar> {
             const SizedBox(height: FerroDimensions.space4),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   _formatDuration(Duration(milliseconds: clampedPositionMs.round())),
                   style: FerroTypography.monoTimer,
                 ),
+                if (widget.centerWidget != null) widget.centerWidget!,
                 Text(
                   _formatDuration(widget.duration),
                   style: FerroTypography.monoTimer,

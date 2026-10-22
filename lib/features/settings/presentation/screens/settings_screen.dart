@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
+import 'package:ferro/core/providers/providers.dart';
 import 'package:ferro/core/widgets/widgets.dart';
 import 'package:ferro/features/car_mode/presentation/screens/car_mode_screen.dart';
 import 'package:ferro/features/devices/presentation/screens/devices_screen.dart';
@@ -350,6 +351,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     MaterialPageRoute<void>(builder: (_) => const DevicesScreen()),
                   );
                 },
+              ),
+              _buildTile(
+                icon: Icons.cable_rounded,
+                title: 'Simulasi Deteksi Perangkat (Demo)',
+                subtitle: 'Uji deteksi otomatis saat headphone/DAC dicolok',
+                onTap: () => HardwareGearSimulator.showSimulationSheet(context),
               ),
               // Crossfade Tile with Slider
               Padding(

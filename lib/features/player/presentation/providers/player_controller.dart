@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ferro/data/sources/mock_catalog.dart';
 
@@ -13,9 +14,33 @@ class PlayerController extends ChangeNotifier {
     _currentSong = MockCatalog.songs.first;
     _queue = List.from(MockCatalog.songs);
     _history = [];
+    startTicker();
   }
 
   static final PlayerController instance = PlayerController._();
+
+  static bool enableTicker = false;
+  Timer? _ticker;
+
+  void startTicker() {
+    _ticker?.cancel();
+    if (!enableTicker) return;
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_isPlaying) {
+        if (_position < _duration) {
+          _position += const Duration(seconds: 1);
+          notifyListeners();
+        } else {
+          next();
+        }
+      }
+    });
+  }
+
+  void stopTicker() {
+    _ticker?.cancel();
+    _ticker = null;
+  }
 
   late MockSong _currentSong;
   bool _isPlaying = true;

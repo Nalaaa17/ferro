@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
+import 'package:ferro/core/providers/providers.dart';
 import 'package:ferro/features/devices/domain/entities/device_profile.dart';
 import 'package:ferro/features/equalizer/presentation/providers/equalizer_controller.dart';
 import 'package:ferro/features/equalizer/presentation/screens/equalizer_screen.dart';
@@ -113,6 +114,11 @@ class _DevicesScreenState extends State<DevicesScreen> {
       appBar: AppBar(
         title: Text('Perangkat Saya', style: FerroTypography.headline),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.cable_rounded, color: FerroColors.primaryLight),
+            tooltip: 'Simulasi Colok Hardware (Browser Demo)',
+            onPressed: () => HardwareGearSimulator.showSimulationSheet(context),
+          ),
           IconButton(
             icon: const Icon(Icons.equalizer_rounded),
             tooltip: 'Buka Equalizer',
@@ -242,6 +248,15 @@ class _DevicesScreenState extends State<DevicesScreen> {
                 onChanged: _eq.toggleAutoSwitch,
               ),
             ],
+          ),
+          const SizedBox(height: FerroDimensions.space8),
+          FerroButton(
+            label: 'Simulasi Colok Perangkat (Browser Demo)',
+            icon: Icons.cable_rounded,
+            height: 38.0,
+            variant: FerroButtonVariant.outline,
+            fullWidth: true,
+            onPressed: () => HardwareGearSimulator.showSimulationSheet(context),
           ),
         ],
       ),

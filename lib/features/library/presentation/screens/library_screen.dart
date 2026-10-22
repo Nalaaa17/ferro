@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
 import 'package:ferro/data/sources/mock_catalog.dart';
+import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 
 enum SortOption {
   titleAZ('Judul (A-Z)'),
@@ -295,9 +296,7 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
                 if (_isSelectMode) {
                   _toggleSongSelection(song.id);
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Memutar: ${song.title}')),
-                  );
+                  PlayerController.instance.playSong(song);
                 }
               },
               onLongPress: () {

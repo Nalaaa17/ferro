@@ -60,18 +60,21 @@ class MiniPlayer extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    // Artwork (48dp x 48dp rounded 8)
-                    ClipRRect(
-                      borderRadius: FerroDimensions.radiusArtworkAll,
-                      child: artworkUrl != null && artworkUrl!.isNotEmpty
-                          ? Image.network(
-                              artworkUrl!,
-                              width: 48.0,
-                              height: 48.0,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => const ArtworkPlaceholder(size: 48.0),
-                            )
-                          : const ArtworkPlaceholder(size: 48.0),
+                    // Artwork (48dp x 48dp rounded 8) with Hero transition
+                    Hero(
+                      tag: 'now-playing-art-hero',
+                      child: ClipRRect(
+                        borderRadius: FerroDimensions.radiusArtworkAll,
+                        child: artworkUrl != null && artworkUrl!.isNotEmpty
+                            ? Image.network(
+                                artworkUrl!,
+                                width: 48.0,
+                                height: 48.0,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => const ArtworkPlaceholder(size: 48.0),
+                              )
+                            : const ArtworkPlaceholder(size: 48.0),
+                      ),
                     ),
                     const SizedBox(width: FerroDimensions.space12),
 

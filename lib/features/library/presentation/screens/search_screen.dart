@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
 import 'package:ferro/data/sources/mock_catalog.dart';
+import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -172,11 +173,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       title: song.title,
                       artist: '${song.artist} • ${song.album}',
                       durationText: song.durationString,
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Memutar: ${song.title}')),
-                        );
-                      },
+                      onTap: () => PlayerController.instance.playSong(song),
                       onMoreTap: () {},
                     ),
                     if (index < filteredSongs.length - 1)

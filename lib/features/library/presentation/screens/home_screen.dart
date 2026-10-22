@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
 import 'package:ferro/data/sources/mock_catalog.dart';
+import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -151,8 +152,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 title: song.title,
                                 artist: '${song.artist} • ${song.format}',
                                 durationText: song.durationString,
-                                isPlaying: index == 0,
-                                onTap: () {},
+                                isPlaying: PlayerController.instance.currentSong.id == song.id && PlayerController.instance.isPlaying,
+                                onTap: () => PlayerController.instance.playSong(song),
                                 onMoreTap: () {},
                               ),
                               if (index < 3) const Divider(height: 1, indent: 72),

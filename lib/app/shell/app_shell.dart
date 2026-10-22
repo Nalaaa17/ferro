@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
+import 'package:ferro/features/player/presentation/providers/player_controller.dart';
+import 'package:ferro/features/player/presentation/screens/now_playing_screen.dart';
 
 /// AppShell widget providing persistent MiniPlayer floating above BottomNavigationBar per PRD §4.4.
 class AppShell extends StatefulWidget {
@@ -17,7 +19,25 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
-  bool _isPlaying = true;
+  final PlayerController _player = PlayerController.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _player.addListener(_onPlayerStateChanged);
+  }
+
+  @override
+  void dispose() {
+    _player.removeListener(_onPlayerStateChanged);
+    super.dispose();
+  }
+
+  void _onPlayerStateChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   void _onTabSelected(int index) {
     widget.navigationShell.goBranch(
@@ -26,8 +46,28 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
+  void _openNowPlaying() {
+    Navigator.of(context).push(
+      PageRouteBuilder<void>(
+        pageBuilder: (context, animation, secondaryAnimation) => const NowPlayingScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.easeOutCubic;
+          final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          return SlideTransition(position: animation.drive(tween), child: child);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currentSong = _player.currentSong;
+    final progress = _player.duration.inMilliseconds > 0
+        ? _player.position.inMilliseconds / _player.duration.inMilliseconds
+        : 0.0;
+
     return Scaffold(
       backgroundColor: FerroColors.background,
       body: widget.navigationShell,
@@ -38,25 +78,13 @@ class _AppShellState extends State<AppShell> {
           children: [
             // Persistent Mini Player (64dp height)
             MiniPlayer(
-              title: 'One More Time',
-              artist: 'Daft Punk • Discovery',
-              isPlaying: _isPlaying,
-              progress: 0.42,
-              onTap: () {
-                // In Phase 3, this will open NowPlaying fullscreen
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Now Playing Screen akan dibuka (Fase 3)'),
-                    duration: Duration(seconds: 1),
-                  ),
-                );
-              },
-              onPlayPauseTap: () {
-                setState(() {
-                  _isPlaying = !_isPlaying;
-                });
-              },
-              onNextTap: () {},
+              title: currentSong.title,
+              artist: '${currentSong.artist} • ${currentSong.format}',
+              isPlaying: _player.isPlaying,
+              progress: progress,
+              onTap: _openNowPlaying,
+              onPlayPauseTap: _player.togglePlayPause,
+              onNextTap: _player.next,
             ),
 
             // Bottom Navigation Bar (72dp height)

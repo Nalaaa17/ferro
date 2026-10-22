@@ -7,6 +7,7 @@ import 'package:ferro/features/onboarding/presentation/screens/permission_screen
 import 'package:ferro/features/library/presentation/screens/home_screen.dart';
 import 'package:ferro/features/library/presentation/screens/library_screen.dart';
 import 'package:ferro/features/library/presentation/screens/search_screen.dart';
+import 'package:ferro/features/player/presentation/screens/now_playing_screen.dart';
 import 'package:ferro/features/settings/presentation/screens/settings_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -33,7 +34,14 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const PermissionScreen(),
     ),
 
-    // 4. Main App Navigation Shell (StatefulIndexedStack)
+    // 4. Immersive Fullscreen Now Playing Screen
+    GoRoute(
+      path: '/now-playing',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const NowPlayingScreen(),
+    ),
+
+    // 5. Main App Navigation Shell (StatefulIndexedStack)
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return AppShell(navigationShell: navigationShell);

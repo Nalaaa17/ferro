@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
 import 'package:ferro/data/sources/mock_catalog.dart';
+import 'package:ferro/features/library/presentation/screens/album_detail_screen.dart';
+import 'package:ferro/features/library/presentation/screens/artist_detail_screen.dart';
+import 'package:ferro/features/library/presentation/screens/folder_browser_screen.dart';
+import 'package:ferro/features/library/presentation/screens/playlist_detail_screen.dart';
 import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 
 enum SortOption {
@@ -357,7 +361,11 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
           title: album.title,
           subtitle: '${album.artist} • ${album.trackCount} Lagu',
           width: double.infinity,
-          onTap: () {},
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => AlbumDetailScreen(album: album)),
+            );
+          },
         );
       },
     );
@@ -393,7 +401,13 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
           title: Text(artist['name']!, style: FerroTypography.title),
           subtitle: Text(artist['count']!, style: FerroTypography.caption),
           trailing: const Icon(Icons.chevron_right_rounded, color: FerroColors.onSurfaceMuted),
-          onTap: () {},
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ArtistDetailScreen(artistName: artist['name']!),
+              ),
+            );
+          },
         );
       },
     );
@@ -449,7 +463,13 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
             title: Text(folder.split('/').last, style: FerroTypography.title),
             subtitle: Text(folder, style: FerroTypography.caption),
             trailing: const Icon(Icons.chevron_right_rounded, color: FerroColors.onSurfaceMuted),
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => FolderBrowserScreen(initialPath: folder),
+                ),
+              );
+            },
           ),
         );
       },
@@ -461,39 +481,43 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
       padding: const EdgeInsets.all(FerroDimensions.space16),
       children: [
         // Buat Playlist Baru Card (Dashed Border style)
-        Container(
-          padding: const EdgeInsets.all(FerroDimensions.space16),
-          decoration: BoxDecoration(
-            color: FerroColors.surface,
-            borderRadius: FerroDimensions.radiusCardAll,
-            border: Border.all(
-              color: FerroColors.primary.withValues(alpha: 0.6),
-              width: 1.2,
+        InkWell(
+          onTap: () => PlaylistDetailScreen.showCreatePlaylistSheet(context),
+          borderRadius: FerroDimensions.radiusCardAll,
+          child: Container(
+            padding: const EdgeInsets.all(FerroDimensions.space16),
+            decoration: BoxDecoration(
+              color: FerroColors.surface,
+              borderRadius: FerroDimensions.radiusCardAll,
+              border: Border.all(
+                color: FerroColors.primary.withValues(alpha: 0.6),
+                width: 1.2,
+              ),
             ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48.0,
-                height: 48.0,
-                decoration: const BoxDecoration(
-                  gradient: FerroColors.primaryGradient,
-                  shape: BoxShape.circle,
+            child: Row(
+              children: [
+                Container(
+                  width: 48.0,
+                  height: 48.0,
+                  decoration: const BoxDecoration(
+                    gradient: FerroColors.primaryGradient,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.add_rounded, color: Colors.white, size: 28.0),
+                  ),
                 ),
-                child: const Center(
-                  child: Icon(Icons.add_rounded, color: Colors.white, size: 28.0),
+                const SizedBox(width: FerroDimensions.space16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Buat Playlist Baru', style: FerroTypography.title),
+                    const SizedBox(height: FerroDimensions.space2),
+                    Text('Kelompokkan musik favoritmu', style: FerroTypography.caption),
+                  ],
                 ),
-              ),
-              const SizedBox(width: FerroDimensions.space16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Buat Playlist Baru', style: FerroTypography.title),
-                  const SizedBox(height: FerroDimensions.space2),
-                  Text('Kelompokkan musik favoritmu', style: FerroTypography.caption),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         const SizedBox(height: FerroDimensions.space16),
@@ -505,7 +529,16 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
             title: Text('Lagu Favorit', style: FerroTypography.title),
             subtitle: Text('2 Lagu • Lossless', style: FerroTypography.caption),
             trailing: const Icon(Icons.chevron_right_rounded, color: FerroColors.onSurfaceMuted),
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const PlaylistDetailScreen(
+                    playlistTitle: 'Lagu Favorit',
+                    description: 'Koleksi audio favorit offline',
+                  ),
+                ),
+              );
+            },
           ),
         ),
         const SizedBox(height: FerroDimensions.space8),
@@ -515,7 +548,16 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
             title: Text('Audiophile Mix (FLAC)', style: FerroTypography.title),
             subtitle: Text('8 Lagu • Hi-Res 96kHz', style: FerroTypography.caption),
             trailing: const Icon(Icons.chevron_right_rounded, color: FerroColors.onSurfaceMuted),
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const PlaylistDetailScreen(
+                    playlistTitle: 'Audiophile Mix (FLAC)',
+                    description: 'Mastering 24-bit Hi-Res 96kHz',
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ],

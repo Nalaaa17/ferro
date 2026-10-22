@@ -41,6 +41,8 @@ class PlayerController extends ChangeNotifier {
   List<MockSong> get queue => List.unmodifiable(_queue);
   List<MockSong> get history => List.unmodifiable(_history);
 
+  void play(MockSong song) => playSong(song);
+
   void playSong(MockSong song) {
     if (!_history.contains(_currentSong)) {
       _history.insert(0, _currentSong);

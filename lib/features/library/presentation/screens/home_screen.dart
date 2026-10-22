@@ -42,57 +42,40 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: FerroColors.background,
       appBar: AppBar(
-        title: Row(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 32.0,
-              height: 32.0,
-              decoration: const BoxDecoration(
-                gradient: FerroColors.primaryGradient,
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Icon(Icons.graphic_eq_rounded, size: 18.0, color: Colors.white),
+            Text(
+              _getGreeting(),
+              style: FerroTypography.headline.copyWith(
+                fontSize: 22.0,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(width: FerroDimensions.space12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _getGreeting(),
-                  style: FerroTypography.headline.copyWith(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  '10 Lagu Siap Diputar Offline',
-                  style: FerroTypography.caption.copyWith(
-                    fontSize: 11.0,
-                    color: FerroColors.primary,
-                  ),
-                ),
-              ],
+            Text(
+              '${MockCatalog.songs.length} Lagu Siap Diputar Offline',
+              style: FerroTypography.caption.copyWith(
+                fontSize: 12.0,
+                color: FerroColors.primary,
+              ),
             ),
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.cast_connected_rounded),
-            tooltip: 'Perangkat Audio Aktif',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Perangkat Aktif: Speaker Internal (EQ Default)'),
+          Padding(
+            padding: const EdgeInsets.only(right: FerroDimensions.space16),
+            child: Center(
+              child: Image.asset(
+                'assets/images/ferro_logo.png',
+                height: 38.0,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.graphic_eq_rounded,
+                  size: 28.0,
+                  color: FerroColors.primary,
                 ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Pengaturan',
-            onPressed: () {},
+              ),
+            ),
           ),
         ],
       ),

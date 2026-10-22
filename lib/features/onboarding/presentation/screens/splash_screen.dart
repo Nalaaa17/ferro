@@ -75,11 +75,18 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           ),
                         ],
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.graphic_eq_rounded,
-                          size: 48.0,
-                          color: Colors.white,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(14.0),
+                          child: Image.asset(
+                            'assets/images/ferro_logo.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) => const Icon(
+                              Icons.graphic_eq_rounded,
+                              size: 48.0,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),

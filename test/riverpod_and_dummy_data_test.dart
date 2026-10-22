@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ferro/core/providers/providers.dart';
 import 'package:ferro/data/sources/mock_catalog.dart';
+import 'package:ferro/features/library/presentation/screens/home_screen.dart';
 import 'package:ferro/features/library/presentation/screens/library_screen.dart';
 import 'package:ferro/features/lyrics/domain/entities/lyric_line.dart';
 
@@ -133,5 +134,25 @@ void main() {
       expect(find.text('Simulasi Deteksi Hardware (Browser)'), findsOneWidget);
       expect(find.textContaining('Apple USB-C DAC'), findsOneWidget);
     });
+
+    testWidgets('HomeScreen displays Ferro logo in top-right AppBar and no settings icon', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(800, 1200));
+
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: HomeScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Verify Ferro logo Image.asset is present in actions
+      expect(find.byType(Image), findsWidgets);
+      // Verify no settings icon in top right
+      expect(find.byIcon(Icons.settings_outlined), findsNothing);
+      expect(find.byIcon(Icons.cast_connected_rounded), findsNothing);
+    });
   });
 }
+

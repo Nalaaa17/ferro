@@ -503,7 +503,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     context: context,
                     applicationName: 'FERRO Player',
                     applicationVersion: 'v1.0.0-beta (Build 2026.10)',
-                    applicationIcon: const Icon(Icons.graphic_eq_rounded, size: 48.0, color: FerroColors.primary),
+                    applicationIcon: Image.asset(
+                      'assets/images/ferro_logo.png',
+                      width: 48.0,
+                      height: 48.0,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.graphic_eq_rounded,
+                        size: 48.0,
+                        color: FerroColors.primary,
+                      ),
+                    ),
                     children: [
                       const Text(
                         'Universal Offline Audio & Video-Audio Player dengan fitur Per-Gear Auto Preset, 10-Band EQ, dan lirik tersinkronisasi.',

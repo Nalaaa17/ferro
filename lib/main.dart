@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
+import 'package:ferro/core/widgets/widgets.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,32 +18,47 @@ class FerroApp extends StatelessWidget {
       theme: FerroTheme.darkTheme,
       darkTheme: FerroTheme.darkTheme,
       themeMode: ThemeMode.dark,
-      home: const ThemeShowcaseScreen(),
+      home: const ComponentShowcaseScreen(),
     );
   }
 }
 
-class ThemeShowcaseScreen extends StatelessWidget {
-  const ThemeShowcaseScreen({super.key});
+class ComponentShowcaseScreen extends StatefulWidget {
+  const ComponentShowcaseScreen({super.key});
+
+  @override
+  State<ComponentShowcaseScreen> createState() => _ComponentShowcaseScreenState();
+}
+
+class _ComponentShowcaseScreenState extends State<ComponentShowcaseScreen> {
+  int _selectedChipIndex = 0;
+  Duration _currentPosition = const Duration(minutes: 1, seconds: 24);
+  final Duration _totalDuration = const Duration(minutes: 3, seconds: 56);
+  final Duration _bufferedPosition = const Duration(minutes: 2, seconds: 15);
+
+  final List<String> _chipLabels = ['Semua', 'FLAC', 'Hi-Res', 'Playlist', 'Folder'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('FERRO Design System', style: FerroTypography.headline),
+        title: Text('FERRO Component Kit', style: FerroTypography.headline),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.palette_outlined),
             onPressed: () {},
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(FerroDimensions.space16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: FerroDimensions.space16,
+          vertical: FerroDimensions.space20,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hero Brand Card
+            // 1. Hero Brand Header
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(FerroDimensions.space20),
@@ -54,12 +70,12 @@ class ThemeShowcaseScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'FERRO',
+                    'FERRO UI KIT',
                     style: FerroTypography.display.copyWith(color: Colors.white),
                   ),
                   const SizedBox(height: FerroDimensions.space4),
                   Text(
-                    'Semua format, satu player — EQ yang hafal perangkatmu.',
+                    'Reusable Component Showcase — PRD §3.5',
                     style: FerroTypography.body.copyWith(
                       color: Colors.white.withValues(alpha: 0.9),
                     ),
@@ -69,68 +85,153 @@ class ThemeShowcaseScreen extends StatelessWidget {
             ),
             const SizedBox(height: FerroDimensions.space24),
 
-            // Typography Showcase
-            Text('Tipografi (Plus Jakarta Sans)', style: FerroTypography.headline),
+            // 2. FerroButton Variants
+            Text('1. FerroButton (Pill 48dp)', style: FerroTypography.headline),
+            const SizedBox(height: FerroDimensions.space12),
+            Wrap(
+              spacing: FerroDimensions.space12,
+              runSpacing: FerroDimensions.space12,
+              children: [
+                FerroButton(
+                  label: 'Putar Sekarang',
+                  icon: Icons.play_arrow_rounded,
+                  onPressed: () {},
+                  variant: FerroButtonVariant.filled,
+                ),
+                FerroButton(
+                  label: 'Antrian',
+                  icon: Icons.queue_music_rounded,
+                  onPressed: () {},
+                  variant: FerroButtonVariant.outline,
+                ),
+                FerroButton(
+                  label: 'Lihat Semua',
+                  onPressed: () {},
+                  variant: FerroButtonVariant.text,
+                ),
+                const FerroButton(
+                  label: 'Memuat...',
+                  isLoading: true,
+                  onPressed: null,
+                ),
+              ],
+            ),
+            const SizedBox(height: FerroDimensions.space28),
+
+            // 3. Filter Chips
+            Text('2. FerroChip (Pill Filter)', style: FerroTypography.headline),
+            const SizedBox(height: FerroDimensions.space12),
+            Wrap(
+              spacing: FerroDimensions.space8,
+              runSpacing: FerroDimensions.space8,
+              children: List.generate(_chipLabels.length, (index) {
+                return FerroChip(
+                  label: _chipLabels[index],
+                  isSelected: _selectedChipIndex == index,
+                  onTap: () => setState(() => _selectedChipIndex = index),
+                );
+              }),
+            ),
+            const SizedBox(height: FerroDimensions.space28),
+
+            // 4. SeekBar (Gradient 3dp & Tabular Figures)
+            Text('3. FerroSeekBar (3dp Gradient & Scrubbing)', style: FerroTypography.headline),
             const SizedBox(height: FerroDimensions.space12),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(FerroDimensions.space16),
+                child: FerroSeekBar(
+                  position: _currentPosition,
+                  duration: _totalDuration,
+                  bufferedPosition: _bufferedPosition,
+                  onChanged: (pos) => setState(() => _currentPosition = pos),
+                  onChangeEnd: (pos) => setState(() => _currentPosition = pos),
+                ),
+              ),
+            ),
+            const SizedBox(height: FerroDimensions.space28),
+
+            // 5. AlbumCard (1:1 Ratio 160dp with Hover Overlay)
+            Text('4. AlbumCard (160dp 1:1 with Hover Play)', style: FerroTypography.headline),
+            const SizedBox(height: FerroDimensions.space12),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  AlbumCard(
+                    title: 'Discovery (Daft Punk)',
+                    subtitle: '2001 • 14 Lagu',
+                    onTap: () {},
+                  ),
+                  const SizedBox(width: FerroDimensions.space16),
+                  AlbumCard(
+                    title: 'Random Access Memories',
+                    subtitle: 'FLAC 96kHz/24bit',
+                    onTap: () {},
+                  ),
+                  const SizedBox(width: FerroDimensions.space16),
+                  AlbumCard(
+                    title: 'Abbey Road (Remastered)',
+                    subtitle: 'The Beatles',
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: FerroDimensions.space28),
+
+            // 6. SongTile (64dp Height with Artwork & Controls)
+            Text('5. SongTile (64dp Height & Active Playing State)', style: FerroTypography.headline),
+            const SizedBox(height: FerroDimensions.space12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: FerroDimensions.space4),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Display 28sp Bold', style: FerroTypography.display),
-                    const SizedBox(height: FerroDimensions.space8),
-                    Text('Headline 20sp SemiBold', style: FerroTypography.headline),
-                    const SizedBox(height: FerroDimensions.space8),
-                    Text('Title 16sp SemiBold', style: FerroTypography.title),
-                    const SizedBox(height: FerroDimensions.space8),
-                    Text('Body 14sp Regular - Tagline & Deskripsi Lagu', style: FerroTypography.body),
-                    const SizedBox(height: FerroDimensions.space8),
-                    Text('Caption 12sp Regular - 320kbps • 44.1kHz • FLAC', style: FerroTypography.caption),
-                    const SizedBox(height: FerroDimensions.space8),
-                    Text('02:45 / 04:12 (Mono Timer)', style: FerroTypography.monoTimer),
+                    SongTile(
+                      title: 'One More Time',
+                      artist: 'Daft Punk • Discovery',
+                      durationText: '05:20',
+                      isPlaying: true,
+                      onTap: () {},
+                      onMoreTap: () {},
+                    ),
+                    const Divider(height: 1, indent: 72),
+                    SongTile(
+                      title: 'Harder, Better, Faster, Stronger',
+                      artist: 'Daft Punk • Discovery',
+                      durationText: '03:44',
+                      onTap: () {},
+                      onMoreTap: () {},
+                    ),
+                    const Divider(height: 1, indent: 72),
+                    SongTile(
+                      title: 'Something About Us',
+                      artist: 'Daft Punk • Discovery',
+                      durationText: '03:51',
+                      onTap: () {},
+                      onMoreTap: () {},
+                    ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: FerroDimensions.space24),
+            const SizedBox(height: FerroDimensions.space28),
 
-            // Colors Showcase
-            Text('Palet Warna', style: FerroTypography.headline),
+            // 7. EmptyState
+            Text('6. EmptyState (Status Kosong & CTA)', style: FerroTypography.headline),
             const SizedBox(height: FerroDimensions.space12),
-            Row(
-              children: [
-                _colorSwatch('Primary', FerroColors.primary),
-                const SizedBox(width: FerroDimensions.space8),
-                _colorSwatch('Surface', FerroColors.surface),
-                const SizedBox(width: FerroDimensions.space8),
-                _colorSwatch('High', FerroColors.surfaceHigh),
-                const SizedBox(width: FerroDimensions.space8),
-                _colorSwatch('Success', FerroColors.success),
-              ],
+            Card(
+              child: EmptyState(
+                title: 'Pustaka Musik Kosong',
+                description: 'Belum ada file musik yang ditemukan di perangkat Anda. Pindai folder sekarang.',
+                actionLabel: 'Pindai Musik Sekarang',
+                actionIcon: Icons.folder_open_rounded,
+                onActionPressed: () {},
+              ),
             ),
+            const SizedBox(height: FerroDimensions.space32),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _colorSwatch(String name, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: FerroDimensions.space16),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: FerroDimensions.radiusArtworkAll,
-          border: Border.all(color: FerroColors.divider, width: 1.0),
-        ),
-        child: Center(
-          child: Text(
-            name,
-            style: FerroTypography.captionBold.copyWith(
-              color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
-            ),
-          ),
         ),
       ),
     );

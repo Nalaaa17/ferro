@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
 import 'package:ferro/features/car_mode/presentation/screens/car_mode_screen.dart';
+import 'package:ferro/features/devices/presentation/screens/devices_screen.dart';
+import 'package:ferro/features/equalizer/presentation/providers/equalizer_controller.dart';
+import 'package:ferro/features/equalizer/presentation/screens/equalizer_screen.dart';
 import 'package:ferro/features/lyrics/presentation/screens/lyrics_screen.dart';
 import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 import 'package:ferro/features/player/presentation/widgets/queue_sheet.dart';
@@ -17,6 +20,7 @@ class NowPlayingScreen extends StatefulWidget {
 
 class _NowPlayingScreenState extends State<NowPlayingScreen> with SingleTickerProviderStateMixin {
   final PlayerController _player = PlayerController.instance;
+  final EqualizerController _eq = EqualizerController.instance;
 
   late final AnimationController _heartAnimController;
   late final Animation<double> _heartScale;
@@ -25,6 +29,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> with SingleTickerPr
   void initState() {
     super.initState();
     _player.addListener(_onPlayerStateChanged);
+    _eq.addListener(_onPlayerStateChanged);
 
     _heartAnimController = AnimationController(
       vsync: this,
@@ -38,6 +43,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> with SingleTickerPr
   @override
   void dispose() {
     _player.removeListener(_onPlayerStateChanged);
+    _eq.removeListener(_onPlayerStateChanged);
     _heartAnimController.dispose();
     super.dispose();
   }
@@ -107,31 +113,43 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> with SingleTickerPr
                           icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 32.0),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
-                        // Device Badge Pill
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-                          decoration: BoxDecoration(
-                            color: FerroColors.surfaceHigh,
-                            borderRadius: FerroDimensions.radiusPillAll,
-                            border: Border.all(color: FerroColors.divider, width: 1.0),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.bluetooth_audio_rounded,
-                                size: 16.0,
-                                color: FerroColors.success,
-                              ),
-                              const SizedBox(width: FerroDimensions.space6),
-                              Text(
-                                'TWS-Soundcore R50i',
-                                style: FerroTypography.captionBold.copyWith(
-                                  color: FerroColors.onSurface,
-                                  fontSize: 11.5,
+                        // Device Badge Pill (Interactive)
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(builder: (_) => const DevicesScreen()),
+                            );
+                          },
+                          borderRadius: FerroDimensions.radiusPillAll,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                            decoration: BoxDecoration(
+                              color: FerroColors.surfaceHigh,
+                              borderRadius: FerroDimensions.radiusPillAll,
+                              border: Border.all(color: FerroColors.divider, width: 1.0),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _eq.activeProfile.connectionType == 'usb'
+                                      ? Icons.usb_rounded
+                                      : _eq.activeProfile.connectionType == 'wired'
+                                          ? Icons.headphones_rounded
+                                          : Icons.bluetooth_audio_rounded,
+                                  size: 16.0,
+                                  color: FerroColors.success,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: FerroDimensions.space6),
+                                Text(
+                                  _eq.activeProfile.displayName,
+                                  style: FerroTypography.captionBold.copyWith(
+                                    color: FerroColors.onSurface,
+                                    fontSize: 11.5,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         Row(
@@ -421,8 +439,8 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> with SingleTickerPr
                             icon: Icons.equalizer_rounded,
                             label: 'Equalizer',
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Membuka Equalizer 10-Band (Fase 4.1)')),
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(builder: (_) => const EqualizerScreen()),
                               );
                             },
                           ),
@@ -430,8 +448,8 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> with SingleTickerPr
                             icon: Icons.devices_rounded,
                             label: 'Perangkat',
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Membuka Perangkat Saya (Fase 4.2)')),
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(builder: (_) => const DevicesScreen()),
                               );
                             },
                           ),

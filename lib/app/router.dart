@@ -10,6 +10,8 @@ import 'package:ferro/features/library/presentation/screens/library_screen.dart'
 import 'package:ferro/features/library/presentation/screens/search_screen.dart';
 import 'package:ferro/features/lyrics/presentation/screens/lyrics_screen.dart';
 import 'package:ferro/features/player/presentation/screens/now_playing_screen.dart';
+import 'package:ferro/features/devices/presentation/screens/devices_screen.dart';
+import 'package:ferro/features/equalizer/presentation/screens/equalizer_screen.dart';
 import 'package:ferro/features/settings/presentation/screens/settings_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -55,6 +57,20 @@ final GoRouter appRouter = GoRouter(
       path: '/car-mode',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CarModeScreen(),
+    ),
+
+    // 7. Equalizer Screen (10-Band EQ & DSP Effects)
+    GoRoute(
+      path: '/equalizer',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const EqualizerScreen(),
+    ),
+
+    // 8. Perangkat Saya (Per-Gear Auto Preset Screen)
+    GoRoute(
+      path: '/devices',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DevicesScreen(),
     ),
 
     // 7. Main App Navigation Shell (StatefulIndexedStack)

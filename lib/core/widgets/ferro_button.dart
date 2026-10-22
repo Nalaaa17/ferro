@@ -61,11 +61,15 @@ class _FerroButtonState extends State<FerroButton> {
           ),
           const SizedBox(width: FerroDimensions.space8),
         ],
-        Text(
-          widget.label,
-          style: FerroTypography.title.copyWith(
-            color: _getContentColor(),
-            fontWeight: FontWeight.w600,
+        Flexible(
+          child: Text(
+            widget.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: FerroTypography.title.copyWith(
+              color: _getContentColor(),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],

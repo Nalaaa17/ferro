@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
+import 'package:ferro/features/devices/presentation/screens/devices_screen.dart';
+import 'package:ferro/features/equalizer/presentation/screens/equalizer_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -25,13 +27,21 @@ class SettingsScreen extends StatelessWidget {
                 icon: Icons.equalizer_rounded,
                 title: 'Equalizer & Sound Effects',
                 subtitle: '10-Band EQ, Bass Boost, Virtualizer',
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => const EqualizerScreen()),
+                  );
+                },
               ),
               _buildTile(
                 icon: Icons.headphones_rounded,
                 title: 'Perangkat Saya (Per-Gear)',
                 subtitle: 'Auto-switch EQ & volume per perangkat',
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => const DevicesScreen()),
+                  );
+                },
               ),
             ],
           ),

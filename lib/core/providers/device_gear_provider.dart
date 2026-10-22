@@ -121,7 +121,7 @@ class HardwareGearSimulator {
                           const SizedBox(width: FerroDimensions.space8),
                           Expanded(
                             child: Text(
-                              'Simulasi Deteksi Hardware (Browser)',
+                              'Pilih Profil Output Audio',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: FerroTypography.title.copyWith(fontSize: 15.0),
@@ -138,7 +138,7 @@ class HardwareGearSimulator {
                 ),
                 const SizedBox(height: FerroDimensions.space4),
                 Text(
-                  'Uji coba fitur Per-Gear Auto Preset. Pilih gear di bawah untuk mensimulasikan koneksi hardware audio:',
+                  'Pilih profil perangkat aktif untuk menerapkan kurva EQ dan volume target secara otomatis:',
                   style: FerroTypography.caption.copyWith(color: FerroColors.onSurfaceMuted),
                 ),
                 const SizedBox(height: FerroDimensions.space16),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
+import 'package:ferro/data/sources/mock_catalog.dart';
+import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 import 'package:ferro/features/car_mode/presentation/screens/car_mode_screen.dart';
 import 'package:ferro/features/player/presentation/screens/now_playing_screen.dart';
 
@@ -9,6 +11,7 @@ void main() {
   group('NowPlayingScreen FLAC Position Test', () {
     testWidgets('Renders FLAC badge inside seekbar centerWidget below progress', (tester) async {
       await tester.binding.setSurfaceSize(const Size(800, 1200));
+      PlayerController.instance.playSong(MockCatalog.songs.first);
 
       await tester.pumpWidget(
         MaterialApp(

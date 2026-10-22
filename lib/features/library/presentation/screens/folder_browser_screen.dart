@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
-import 'package:ferro/data/sources/mock_catalog.dart';
 import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 
 /// Hierarchical Folder Browser Screen with interactive breadcrumbs per PRD §4.3.
@@ -59,7 +58,7 @@ class _FolderBrowserScreenState extends State<FolderBrowserScreen> {
   Widget build(BuildContext context) {
     final currentFolder = _breadcrumbs.last;
     final subFolders = _folderStructure[currentFolder] ?? ['Subfolder 1', 'Subfolder 2'];
-    const audioFiles = MockCatalog.songs;
+    final audioFiles = _player.allSongs;
 
     return Scaffold(
       backgroundColor: FerroColors.background,

@@ -112,15 +112,28 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildSearchResults() {
-    final filteredSongs = MockCatalog.songs.where((song) {
+    final allSongs = PlayerController.instance.allSongs;
+    final filteredSongs = allSongs.where((song) {
       return song.title.toLowerCase().contains(_searchQuery) ||
           song.artist.toLowerCase().contains(_searchQuery) ||
-          song.album.toLowerCase().contains(_searchQuery);
+          song.album.toLowerCase().contains(_searchQuery) ||
+          song.format.toLowerCase().contains(_searchQuery);
     }).toList();
 
-    final filteredAlbums = MockCatalog.albums.where((album) {
-      return album.title.toLowerCase().contains(_searchQuery) ||
-          album.artist.toLowerCase().contains(_searchQuery);
+    // Group matching albums from filtered songs
+    final albumsMap = <String, List<MockSong>>{};
+    for (final song in filteredSongs) {
+      albumsMap.putIfAbsent(song.album, () => []).add(song);
+    }
+    final filteredAlbums = albumsMap.entries.map((e) {
+      return MockAlbum(
+        id: e.key,
+        title: e.key,
+        artist: e.value.first.artist,
+        year: 2024,
+        trackCount: e.value.length,
+        songs: e.value,
+      );
     }).toList();
 
     if (filteredSongs.isEmpty && filteredAlbums.isEmpty) {
@@ -230,20 +243,24 @@ class _SearchScreenState extends State<SearchScreen> {
         ],
 
         // Browse by Genre
-        Text('Telusuri Menurut Genre', style: FerroTypography.headline),
+        Text('Telusuri Menurut Kategori', style: FerroTypography.headline),
         const SizedBox(height: FerroDimensions.space12),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: FerroDimensions.space12,
-            crossAxisSpacing: FerroDimensions.space12,
-            childAspectRatio: 2.0,
-          ),
-          itemCount: MockCatalog.genres.length,
-          itemBuilder: (context, index) {
-            final genre = MockCatalog.genres[index];
+        Builder(
+          builder: (context) {
+            final songGenres = PlayerController.instance.allSongs.map((s) => s.genre).where((g) => g.isNotEmpty).toSet().toList();
+            final genres = songGenres.isNotEmpty ? songGenres : const ['FLAC Hi-Res', 'WAV Master', 'MP3 Lossy', 'Rock', 'Electronic', 'Jazz'];
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: FerroDimensions.space12,
+                crossAxisSpacing: FerroDimensions.space12,
+                childAspectRatio: 2.0,
+              ),
+              itemCount: genres.length,
+              itemBuilder: (context, index) {
+                final genre = genres[index];
             return InkWell(
               borderRadius: FerroDimensions.radiusCardAll,
               onTap: () {
@@ -268,7 +285,9 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             );
           },
-        ),
+        );
+      },
+    ),
       ],
     );
   }

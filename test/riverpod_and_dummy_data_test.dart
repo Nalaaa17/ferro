@@ -6,6 +6,7 @@ import 'package:ferro/data/sources/mock_catalog.dart';
 import 'package:ferro/features/library/presentation/screens/home_screen.dart';
 import 'package:ferro/features/library/presentation/screens/library_screen.dart';
 import 'package:ferro/features/lyrics/domain/entities/lyric_line.dart';
+import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 
 void main() {
   group('5.1 Dummy Data Generator Tests', () {
@@ -44,18 +45,19 @@ void main() {
   });
 
   group('5.2 Mock Riverpod State Providers Tests', () {
-    test('playerProvider and currentSongProvider read initial song', () {
+    test('playerProvider and currentSongProvider read initial clean state', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
       final currentSong = container.read(currentSongProvider);
-      expect(currentSong.title, 'One More Time');
+      expect(currentSong.title, 'Belum Ada Lagu Diputar');
 
       final isPlaying = container.read(isPlayingProvider);
-      expect(isPlaying, isTrue);
+      expect(isPlaying, isFalse);
     });
 
     test('librarySearchQueryProvider and filteredSongsProvider filter correctly', () {
+      PlayerController.instance.setLibrarySongs(MockCatalog.songs);
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -131,7 +133,7 @@ void main() {
       await tester.tap(find.text('Open Simulator'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Simulasi Deteksi Hardware (Browser)'), findsOneWidget);
+      expect(find.text('Pilih Profil Output Audio'), findsOneWidget);
       expect(find.textContaining('Apple USB-C DAC'), findsOneWidget);
     });
 

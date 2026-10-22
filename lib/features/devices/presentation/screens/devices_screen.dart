@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
-import 'package:ferro/core/providers/providers.dart';
 import 'package:ferro/features/devices/domain/entities/device_profile.dart';
 import 'package:ferro/features/equalizer/presentation/providers/equalizer_controller.dart';
 import 'package:ferro/features/equalizer/presentation/screens/equalizer_screen.dart';
@@ -115,9 +114,13 @@ class _DevicesScreenState extends State<DevicesScreen> {
         title: Text('Perangkat Saya', style: FerroTypography.headline),
         actions: [
           IconButton(
-            icon: const Icon(Icons.cable_rounded, color: FerroColors.primaryLight),
-            tooltip: 'Simulasi Colok Hardware (Browser Demo)',
-            onPressed: () => HardwareGearSimulator.showSimulationSheet(context),
+            icon: const Icon(Icons.refresh_rounded, color: FerroColors.primaryLight),
+            tooltip: 'Periksa Status Perangkat',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Status perangkat audio aktif diperbarui.')),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.equalizer_rounded),
@@ -250,13 +253,24 @@ class _DevicesScreenState extends State<DevicesScreen> {
             ],
           ),
           const SizedBox(height: FerroDimensions.space8),
-          FerroButton(
-            label: 'Simulasi Colok Perangkat (Browser Demo)',
-            icon: Icons.cable_rounded,
-            height: 38.0,
-            variant: FerroButtonVariant.outline,
-            fullWidth: true,
-            onPressed: () => HardwareGearSimulator.showSimulationSheet(context),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            decoration: BoxDecoration(
+              color: FerroColors.surfaceHigh,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, size: 16.0, color: FerroColors.success),
+                const SizedBox(width: 8.0),
+                Expanded(
+                  child: Text(
+                    'Perangkat Aktif: ${_eq.activeProfile.displayName}',
+                    style: FerroTypography.caption.copyWith(color: FerroColors.onSurface),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -18,12 +18,27 @@ class ArtistDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final player = PlayerController.instance;
 
-    // Filter artist songs and albums
-    final artistSongs = MockCatalog.songs.where((s) => s.artist == artistName).toList();
-    final effectiveSongs = artistSongs.isNotEmpty ? artistSongs : MockCatalog.songs.take(5).toList();
+    // Filter artist songs and albums from library
+    final effectiveSongs = player.allSongs
+        .where((s) => s.artist.toLowerCase() == artistName.toLowerCase())
+        .toList();
 
-    final artistAlbums = MockCatalog.albums.where((a) => a.artist == artistName).toList();
-    final effectiveAlbums = artistAlbums.isNotEmpty ? artistAlbums : MockCatalog.albums.take(2).toList();
+    // Group artist albums dynamically
+    final albumsMap = <String, List<MockSong>>{};
+    for (final song in effectiveSongs) {
+      albumsMap.putIfAbsent(song.album, () => []).add(song);
+    }
+    final effectiveAlbums = albumsMap.entries.map((e) {
+      return MockAlbum(
+        id: e.key,
+        title: e.key,
+        artist: artistName,
+        year: 2024,
+        trackCount: e.value.length,
+        songs: e.value,
+        artworkUrl: e.value.first.artworkUrl,
+      );
+    }).toList();
 
     return Scaffold(
       backgroundColor: FerroColors.background,

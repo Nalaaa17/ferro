@@ -4,10 +4,25 @@ import 'package:ferro/app/router.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 
-void main() {
+import 'package:flutter/foundation.dart';
+import 'package:ferro/core/services/audio/ferro_audio_engine.dart';
+import 'package:ferro/core/services/audio/ferro_audio_handler.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   PlayerController.enableTicker = true;
   PlayerController.instance.startTicker();
+
+  try {
+    await FerroAudioEngine.instance.initialize();
+  } catch (_) {}
+
+  try {
+    if (!kIsWeb) {
+      await FerroAudioHandler.init();
+    }
+  } catch (_) {}
+
   runApp(const ProviderScope(child: FerroApp()));
 }
 

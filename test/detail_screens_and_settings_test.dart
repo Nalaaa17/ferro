@@ -14,10 +14,11 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(800, 1200));
 
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: PlaylistDetailScreen(
             playlistTitle: 'Lagu Favorit',
             description: 'Koleksi audio pilihan offline',
+            initialSongs: MockCatalog.songs,
           ),
         ),
       );

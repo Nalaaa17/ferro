@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
-import 'package:ferro/core/providers/providers.dart';
 import 'package:ferro/core/widgets/widgets.dart';
 import 'package:ferro/features/car_mode/presentation/screens/car_mode_screen.dart';
 import 'package:ferro/features/devices/presentation/screens/devices_screen.dart';
 import 'package:ferro/features/equalizer/presentation/screens/equalizer_screen.dart';
+import 'package:ferro/features/player/presentation/providers/player_controller.dart';
+import 'package:ferro/data/repositories/mock_repositories.dart';
 
 /// Modern Grouped Inset Settings Screen per PRD §4.4.
 class SettingsScreen extends StatefulWidget {
@@ -353,10 +354,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
               _buildTile(
-                icon: Icons.cable_rounded,
-                title: 'Simulasi Deteksi Perangkat (Demo)',
-                subtitle: 'Uji deteksi otomatis saat headphone/DAC dicolok',
-                onTap: () => HardwareGearSimulator.showSimulationSheet(context),
+                icon: Icons.sync_rounded,
+                title: 'Pindai Pustaka Audio',
+                subtitle: 'Pindai penyimpanan HP untuk mendeteksi file lagu baru',
+                onTap: () => _handleRescan(context),
               ),
               // Crossfade Tile with Slider
               Padding(
@@ -580,5 +581,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       trailing: const Icon(Icons.chevron_right_rounded, color: FerroColors.onSurfaceMuted),
       onTap: onTap,
     );
+  }
+
+  Future<void> _handleRescan(BuildContext context) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Memindai penyimpanan perangkat untuk file musik...'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+    final count = await PlayerController.instance.scanDeviceMusic(MockSongRepository());
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(count > 0
+              ? 'Pemindaian selesai: $count lagu ditemukan!'
+              : 'Pemindaian selesai. Pustaka audio siap diputar.'),
+        ),
+      );
+    }
   }
 }

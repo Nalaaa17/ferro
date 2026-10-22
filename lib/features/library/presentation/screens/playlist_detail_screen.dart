@@ -50,7 +50,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
     _description = widget.description;
     _songs = widget.initialSongs != null
         ? List.from(widget.initialSongs!)
-        : List.from(MockCatalog.songs);
+        : List.from(_player.allSongs);
   }
 
   void _onReorderItem(int oldIndex, int newIndex) {

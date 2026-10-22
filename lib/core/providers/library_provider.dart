@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ferro/data/sources/mock_catalog.dart';
 import 'package:ferro/features/library/presentation/screens/library_screen.dart';
+import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 
 /// Notifier holding the active search filter query
 class LibrarySearchQueryNotifier extends Notifier<String> {
@@ -50,7 +51,7 @@ final filteredSongsProvider = Provider<List<MockSong>>((ref) {
   final query = ref.watch(librarySearchQueryProvider).trim().toLowerCase();
   final sort = ref.watch(librarySortOptionProvider);
 
-  var songs = MockCatalog.songs.where((song) {
+  var songs = PlayerController.instance.allSongs.where((song) {
     if (query.isEmpty) return true;
     return song.title.toLowerCase().contains(query) ||
         song.artist.toLowerCase().contains(query) ||

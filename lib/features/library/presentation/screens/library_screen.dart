@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
 import 'package:ferro/data/sources/mock_catalog.dart';
+import 'package:ferro/data/repositories/mock_repositories.dart';
 import 'package:ferro/features/library/presentation/screens/album_detail_screen.dart';
 import 'package:ferro/features/library/presentation/screens/artist_detail_screen.dart';
 import 'package:ferro/features/library/presentation/screens/folder_browser_screen.dart';
@@ -44,13 +46,19 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
+    PlayerController.instance.addListener(_onPlayerUpdate);
   }
 
   @override
   void dispose() {
+    PlayerController.instance.removeListener(_onPlayerUpdate);
     _tabController.dispose();
     _songScrollController.dispose();
     super.dispose();
+  }
+
+  void _onPlayerUpdate() {
+    if (mounted) setState(() {});
   }
 
   void _enterSelectMode(String initialId) {
@@ -81,12 +89,13 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
   }
 
   void _selectAll() {
+    final allSongs = PlayerController.instance.allSongs;
     setState(() {
-      if (_selectedSongIds.length == MockCatalog.songs.length) {
+      if (_selectedSongIds.length == allSongs.length) {
         _selectedSongIds.clear();
         _isSelectMode = false;
       } else {
-        _selectedSongIds.addAll(MockCatalog.songs.map((s) => s.id));
+        _selectedSongIds.addAll(allSongs.map((s) => s.id));
       }
     });
   }
@@ -214,7 +223,7 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
       actions: [
         IconButton(
           icon: Icon(
-            _selectedSongIds.length == MockCatalog.songs.length
+            _selectedSongIds.length == PlayerController.instance.allSongs.length
                 ? Icons.deselect_rounded
                 : Icons.select_all_rounded,
           ),
@@ -246,7 +255,53 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
   }
 
   Widget _buildSongsTab() {
-    const songs = MockCatalog.songs;
+    final allSongs = PlayerController.instance.allSongs;
+
+    if (allSongs.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(FerroDimensions.space24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.library_music_rounded, size: 56.0, color: FerroColors.primaryLight),
+              const SizedBox(height: FerroDimensions.space16),
+              Text('Pustaka Belum Ada Lagu', style: FerroTypography.headline.copyWith(fontSize: 18.0)),
+              const SizedBox(height: FerroDimensions.space8),
+              Text(
+                'Pindai perangkat Anda untuk menambahkan file musik FLAC, WAV, MP3 secara otomatis.',
+                textAlign: TextAlign.center,
+                style: FerroTypography.caption,
+              ),
+              const SizedBox(height: FerroDimensions.space20),
+              FerroButton(
+                label: 'Pindai Penyimpanan',
+                icon: Icons.sync_rounded,
+                onPressed: () => PlayerController.instance.scanDeviceMusic(MockSongRepository()),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final songs = List<MockSong>.from(allSongs);
+    switch (_selectedSort) {
+      case SortOption.titleAZ:
+        songs.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+        break;
+      case SortOption.titleZA:
+        songs.sort((a, b) => b.title.toLowerCase().compareTo(a.title.toLowerCase()));
+        break;
+      case SortOption.artist:
+        songs.sort((a, b) => a.artist.toLowerCase().compareTo(b.artist.toLowerCase()));
+        break;
+      case SortOption.duration:
+        songs.sort((a, b) => b.duration.compareTo(a.duration));
+        break;
+      case SortOption.dateAdded:
+        break;
+    }
 
     if (_isGridView) {
       return GridView.builder(
@@ -267,6 +322,8 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
             onTap: () {
               if (_isSelectMode) {
                 _toggleSongSelection(song.id);
+              } else {
+                PlayerController.instance.playSong(song);
               }
             },
           );
@@ -346,6 +403,27 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
   }
 
   Widget _buildAlbumsTab() {
+    final allSongs = PlayerController.instance.allSongs;
+    final albumsMap = <String, List<MockSong>>{};
+    for (final song in allSongs) {
+      albumsMap.putIfAbsent(song.album, () => []).add(song);
+    }
+    final albums = albumsMap.entries.map((e) {
+      return MockAlbum(
+        id: e.key,
+        title: e.key,
+        artist: e.value.first.artist,
+        year: 2024,
+        trackCount: e.value.length,
+        songs: e.value,
+        artworkUrl: e.value.first.artworkUrl,
+      );
+    }).toList();
+
+    if (albums.isEmpty) {
+      return const Center(child: Text('Belum ada album ditemukan'));
+    }
+
     return GridView.builder(
       padding: const EdgeInsets.all(FerroDimensions.space16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -354,9 +432,9 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
         crossAxisSpacing: FerroDimensions.space16,
         childAspectRatio: 0.75,
       ),
-      itemCount: MockCatalog.albums.length,
+      itemCount: albums.length,
       itemBuilder: (context, index) {
-        final album = MockCatalog.albums[index];
+        final album = albums[index];
         return AlbumCard(
           title: album.title,
           subtitle: '${album.artist} • ${album.trackCount} Lagu',
@@ -372,19 +450,22 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
   }
 
   Widget _buildArtistsTab() {
-    final artists = [
-      {'name': 'Daft Punk', 'count': '5 Lagu'},
-      {'name': 'The Beatles', 'count': '2 Lagu'},
-      {'name': 'Pink Floyd', 'count': '1 Lagu'},
-      {'name': 'The Weeknd', 'count': '1 Lagu'},
-      {'name': 'Eagles', 'count': '1 Lagu'},
-    ];
+    final allSongs = PlayerController.instance.allSongs;
+    final artistsMap = <String, int>{};
+    for (final song in allSongs) {
+      artistsMap[song.artist] = (artistsMap[song.artist] ?? 0) + 1;
+    }
+
+    final artists = artistsMap.entries.toList();
+    if (artists.isEmpty) {
+      return const Center(child: Text('Belum ada artis ditemukan'));
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.all(FerroDimensions.space16),
       itemCount: artists.length,
       itemBuilder: (context, index) {
-        final artist = artists[index];
+        final entry = artists[index];
         return ListTile(
           contentPadding: const EdgeInsets.symmetric(vertical: FerroDimensions.space4),
           leading: Container(
@@ -398,13 +479,13 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
               child: Icon(Icons.person_rounded, color: FerroColors.primaryLight, size: 28.0),
             ),
           ),
-          title: Text(artist['name']!, style: FerroTypography.title),
-          subtitle: Text(artist['count']!, style: FerroTypography.caption),
+          title: Text(entry.key, style: FerroTypography.title),
+          subtitle: Text('${entry.value} Lagu', style: FerroTypography.caption),
           trailing: const Icon(Icons.chevron_right_rounded, color: FerroColors.onSurfaceMuted),
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (_) => ArtistDetailScreen(artistName: artist['name']!),
+                builder: (_) => ArtistDetailScreen(artistName: entry.key),
               ),
             );
           },
@@ -414,6 +495,18 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
   }
 
   Widget _buildGenresTab() {
+    final allSongs = PlayerController.instance.allSongs;
+    final genresMap = <String, int>{};
+    for (final song in allSongs) {
+      if (song.genre.isNotEmpty) {
+        genresMap[song.genre] = (genresMap[song.genre] ?? 0) + 1;
+      }
+    }
+    final genres = genresMap.entries.toList();
+    if (genres.isEmpty) {
+      return const Center(child: Text('Belum ada genre ditemukan'));
+    }
+
     return GridView.builder(
       padding: const EdgeInsets.all(FerroDimensions.space16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -422,9 +515,9 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
         crossAxisSpacing: FerroDimensions.space12,
         childAspectRatio: 1.8,
       ),
-      itemCount: MockCatalog.genres.length,
+      itemCount: genres.length,
       itemBuilder: (context, index) {
-        final genre = MockCatalog.genres[index];
+        final entry = genres[index];
         return Container(
           padding: const EdgeInsets.all(FerroDimensions.space16),
           decoration: BoxDecoration(
@@ -441,8 +534,8 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(genre, style: FerroTypography.headline.copyWith(fontSize: 16.0)),
-              Text('Koleksi Offline', style: FerroTypography.caption),
+              Text(entry.key, style: FerroTypography.headline.copyWith(fontSize: 16.0)),
+              Text('${entry.value} Lagu', style: FerroTypography.caption),
             ],
           ),
         );
@@ -451,16 +544,28 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
   }
 
   Widget _buildFoldersTab() {
+    final allSongs = PlayerController.instance.allSongs;
+    final folders = allSongs
+        .map((s) => s.filePath != null ? p.dirname(s.filePath!) : '')
+        .where((f) => f.isNotEmpty)
+        .toSet()
+        .toList();
+
+    if (folders.isEmpty) {
+      return const Center(child: Text('Belum ada folder ditemukan'));
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(FerroDimensions.space16),
-      itemCount: MockCatalog.folders.length,
+      itemCount: folders.length,
       itemBuilder: (context, index) {
-        final folder = MockCatalog.folders[index];
+        final folder = folders[index];
+        final folderName = p.basename(folder);
         return Card(
           margin: const EdgeInsets.only(bottom: FerroDimensions.space8),
           child: ListTile(
             leading: const Icon(Icons.folder_rounded, color: FerroColors.primaryLight, size: 32.0),
-            title: Text(folder.split('/').last, style: FerroTypography.title),
+            title: Text(folderName.isNotEmpty ? folderName : folder, style: FerroTypography.title),
             subtitle: Text(folder, style: FerroTypography.caption),
             trailing: const Icon(Icons.chevron_right_rounded, color: FerroColors.onSurfaceMuted),
             onTap: () {

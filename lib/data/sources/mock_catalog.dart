@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ferro/data/entities/song_entity.dart';
 
 class MockSong {
   const MockSong({
@@ -16,6 +17,8 @@ class MockSong {
     this.isFavorite = false,
     this.isVideoAudio = false,
     this.fileSizeBytes = '28.4 MB',
+    this.filePath,
+    this.lrcPath,
   });
 
   final String id;
@@ -32,6 +35,93 @@ class MockSong {
   final bool isFavorite;
   final bool isVideoAudio; // MP4 video-audio background playback mode per PRD §2.1
   final String fileSizeBytes;
+  final String? filePath;
+  final String? lrcPath;
+
+  bool get isEmpty => id.isEmpty;
+  bool get isNotEmpty => id.isNotEmpty;
+
+  factory MockSong.empty() {
+    return const MockSong(
+      id: '',
+      title: 'Belum Ada Lagu Diputar',
+      artist: 'Ferro Hi-Res Audio',
+      album: 'Pustaka Musik',
+      duration: Duration.zero,
+      genre: 'Semua',
+      format: 'OFFLINE',
+      quality: 'Ready',
+      accentColor: Color(0xFFFF7A1A),
+    );
+  }
+
+  factory MockSong.fromEntity(SongEntity e) {
+    Color color;
+    switch (e.format.toUpperCase()) {
+      case 'FLAC':
+        color = const Color(0xFFFFB800);
+        break;
+      case 'WAV':
+        color = const Color(0xFF3897F0);
+        break;
+      case 'MP4':
+        color = const Color(0xFFFFAA00);
+        break;
+      case 'OPUS':
+        color = const Color(0xFF9E7BFF);
+        break;
+      default:
+        color = const Color(0xFFFF7A1A);
+    }
+
+    final qualityStr = e.sampleRate > 0
+        ? '${(e.sampleRate / 1000).toStringAsFixed(0)}kHz/${e.bitDepth}bit'
+        : e.format;
+
+    final sizeStr = e.fileSize > 0
+        ? '${(e.fileSize / (1024 * 1024)).toStringAsFixed(1)} MB'
+        : '0 MB';
+
+    return MockSong(
+      id: e.id.toString(),
+      title: e.title,
+      artist: e.artist,
+      album: e.album,
+      duration: Duration(milliseconds: e.durationMs),
+      genre: e.genre,
+      format: e.format,
+      quality: qualityStr,
+      accentColor: color,
+      artworkUrl: e.artworkPath,
+      playCount: e.playCount,
+      isFavorite: e.isFavorite,
+      isVideoAudio: e.isVideoAudio,
+      fileSizeBytes: sizeStr,
+      filePath: e.filePath,
+      lrcPath: e.lrcPath,
+    );
+  }
+
+  SongEntity toEntity() {
+    return SongEntity()
+      ..id = int.tryParse(id) ?? 0
+      ..filePath = filePath ?? ''
+      ..title = title
+      ..artist = artist
+      ..album = album
+      ..genre = genre
+      ..format = format
+      ..durationMs = duration.inMilliseconds
+      ..sampleRate = quality.contains('192') ? 192000 : (quality.contains('96') ? 96000 : 44100)
+      ..bitDepth = quality.contains('24') ? 24 : 16
+      ..bitRate = 320000
+      ..fileSize = 35000000
+      ..artworkPath = artworkUrl
+      ..lrcPath = lrcPath
+      ..playCount = playCount
+      ..isFavorite = isFavorite
+      ..isVideoAudio = isVideoAudio;
+  }
 
   String get durationString {
     final m = duration.inMinutes.remainder(60).toString().padLeft(2, '0');

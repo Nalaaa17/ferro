@@ -18,9 +18,11 @@ class AlbumDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final player = PlayerController.instance;
 
-    // Filter songs matching this album, or use sample songs
-    final albumSongs = MockCatalog.songs.where((s) => s.album == album.title).toList();
-    final effectiveSongs = albumSongs.isNotEmpty ? albumSongs : MockCatalog.songs.take(6).toList();
+    // Filter songs matching this album from library
+    final albumSongs = album.songs.isNotEmpty
+        ? album.songs
+        : player.allSongs.where((s) => s.album.toLowerCase() == album.title.toLowerCase()).toList();
+    final effectiveSongs = albumSongs;
 
     return Scaffold(
       backgroundColor: FerroColors.background,

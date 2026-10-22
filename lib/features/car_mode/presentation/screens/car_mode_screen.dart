@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
-import 'package:ferro/data/sources/mock_catalog.dart';
 import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 
 /// Next-Gen High-Utility Automotive Car Mode Screen per PRD §4.16 & Driver UX.
@@ -84,7 +83,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
         side: BorderSide(color: FerroColors.primary, width: 1.5),
       ),
       builder: (context) {
-        const songs = MockCatalog.songs;
+        final songs = _player.allSongs;
 
         return SafeArea(
           child: Container(
@@ -207,10 +206,10 @@ class _CarModeScreenState extends State<CarModeScreen> {
     final currentSong = _player.currentSong;
 
     // Up Next Song determination
-    final currentIndex = MockCatalog.songs.indexWhere((s) => s.id == currentSong.id);
-    final nextSong = (currentIndex != -1 && currentIndex + 1 < MockCatalog.songs.length)
-        ? MockCatalog.songs[currentIndex + 1]
-        : MockCatalog.songs.first;
+    final currentIndex = _player.queue.indexWhere((s) => s.id == currentSong.id);
+    final nextSong = (currentIndex != -1 && currentIndex + 1 < _player.queue.length)
+        ? _player.queue[currentIndex + 1]
+        : (_player.queue.isNotEmpty ? _player.queue.first : currentSong);
 
     final volumePercent = (_player.volume * 100).round();
 

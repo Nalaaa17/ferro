@@ -6,6 +6,8 @@ import 'package:ferro/core/widgets/widgets.dart';
 import 'package:ferro/features/lyrics/domain/entities/lyric_line.dart';
 import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 
+import 'package:ferro/core/services/lyrics/lrc_auto_pairer.dart';
+
 /// Fullscreen synchronized lyrics screen with auto-scroll and karaoke mode per PRD §4.10.
 class LyricsScreen extends StatefulWidget {
   const LyricsScreen({super.key});
@@ -19,7 +21,9 @@ class _LyricsScreenState extends State<LyricsScreen> {
   final ScrollController _scrollController = ScrollController();
 
   bool _isKaraokeMode = false;
-  bool _hasLyrics = true; // Toggleable to test empty fallback state
+  bool _hasLyrics = false;
+  List<LyricLine> _lyrics = [];
+  String? _loadedSongId;
   bool _isUserScrolling = false;
   Timer? _resumeAutoScrollTimer;
 
@@ -29,6 +33,7 @@ class _LyricsScreenState extends State<LyricsScreen> {
   void initState() {
     super.initState();
     _player.addListener(_onPlayerStateChanged);
+    _checkAndLoadLyrics();
   }
 
   @override
@@ -39,9 +44,56 @@ class _LyricsScreenState extends State<LyricsScreen> {
     super.dispose();
   }
 
+  Future<void> _checkAndLoadLyrics() async {
+    final currentSong = _player.currentSong;
+    if (currentSong.isEmpty) {
+      if (mounted) setState(() { _lyrics = []; _hasLyrics = false; });
+      return;
+    }
+
+    _loadedSongId = currentSong.id;
+
+    if (currentSong.lrcPath != null) {
+      final lines = await LrcAutoPairer().readLrcFile(currentSong.lrcPath!);
+      if (lines.isNotEmpty && mounted) {
+        setState(() {
+          _lyrics = lines;
+          _hasLyrics = true;
+        });
+        return;
+      }
+    }
+
+    if (currentSong.filePath != null) {
+      final lrcPath = await LrcAutoPairer().findMatchingLrc(currentSong.filePath!);
+      if (lrcPath != null) {
+        final lines = await LrcAutoPairer().readLrcFile(lrcPath);
+        if (lines.isNotEmpty && mounted) {
+          setState(() {
+            _lyrics = lines;
+            _hasLyrics = true;
+          });
+          return;
+        }
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _lyrics = [];
+        _hasLyrics = false;
+      });
+    }
+  }
+
   void _onPlayerStateChanged() {
+    final currentSong = _player.currentSong;
+    if (_loadedSongId != currentSong.id) {
+      _checkAndLoadLyrics();
+    }
+
     final currentPos = _player.position;
-    const lyrics = MockLyricsData.sampleOneMoreTime;
+    final lyrics = _lyrics;
 
     var newIndex = 0;
     for (var i = 0; i < lyrics.length; i++) {
@@ -88,7 +140,7 @@ class _LyricsScreenState extends State<LyricsScreen> {
   @override
   Widget build(BuildContext context) {
     final currentSong = _player.currentSong;
-    const lyrics = MockLyricsData.sampleOneMoreTime;
+    final lyrics = _lyrics;
 
     return Scaffold(
       backgroundColor: FerroColors.background,
@@ -157,28 +209,6 @@ class _LyricsScreenState extends State<LyricsScreen> {
                         icon: Icons.mic_rounded,
                         isSelected: _isKaraokeMode,
                         onTap: () => setState(() => _isKaraokeMode = !_isKaraokeMode),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Fallback toggle for demo testing
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: FerroDimensions.space16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton.icon(
-                        icon: Icon(
-                          _hasLyrics ? Icons.subtitles_rounded : Icons.subtitles_off_rounded,
-                          size: 16.0,
-                          color: FerroColors.onSurfaceMuted,
-                        ),
-                        label: Text(
-                          _hasLyrics ? 'Simulasi: Tanpa Lirik' : 'Simulasi: Ada Lirik',
-                          style: FerroTypography.caption.copyWith(fontSize: 11.0),
-                        ),
-                        onPressed: () => setState(() => _hasLyrics = !_hasLyrics),
                       ),
                     ],
                   ),

@@ -4,9 +4,11 @@ import 'package:ferro/app/shell/app_shell.dart';
 import 'package:ferro/features/onboarding/presentation/screens/splash_screen.dart';
 import 'package:ferro/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:ferro/features/onboarding/presentation/screens/permission_screen.dart';
+import 'package:ferro/features/car_mode/presentation/screens/car_mode_screen.dart';
 import 'package:ferro/features/library/presentation/screens/home_screen.dart';
 import 'package:ferro/features/library/presentation/screens/library_screen.dart';
 import 'package:ferro/features/library/presentation/screens/search_screen.dart';
+import 'package:ferro/features/lyrics/presentation/screens/lyrics_screen.dart';
 import 'package:ferro/features/player/presentation/screens/now_playing_screen.dart';
 import 'package:ferro/features/settings/presentation/screens/settings_screen.dart';
 
@@ -41,7 +43,21 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const NowPlayingScreen(),
     ),
 
-    // 5. Main App Navigation Shell (StatefulIndexedStack)
+    // 5. Synced Lyrics Screen
+    GoRoute(
+      path: '/lyrics',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LyricsScreen(),
+    ),
+
+    // 6. Car Mode Screen (Safety-first)
+    GoRoute(
+      path: '/car-mode',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CarModeScreen(),
+    ),
+
+    // 7. Main App Navigation Shell (StatefulIndexedStack)
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return AppShell(navigationShell: navigationShell);

@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ferro/app/theme/theme.dart';
 import 'package:ferro/core/widgets/widgets.dart';
+import 'package:ferro/features/car_mode/presentation/screens/car_mode_screen.dart';
+import 'package:ferro/features/lyrics/presentation/screens/lyrics_screen.dart';
 import 'package:ferro/features/player/presentation/providers/player_controller.dart';
 import 'package:ferro/features/player/presentation/widgets/queue_sheet.dart';
 
@@ -132,9 +134,23 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> with SingleTickerPr
                             ],
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.more_horiz_rounded, size: 26.0),
-                          onPressed: () => _showMoreMenu(context),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.directions_car_rounded, size: 24.0),
+                              tooltip: 'Mode Mobil (Car Mode)',
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(builder: (_) => const CarModeScreen()),
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.more_horiz_rounded, size: 26.0),
+                              onPressed: () => _showMoreMenu(context),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -379,8 +395,20 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> with SingleTickerPr
                             icon: Icons.lyrics_rounded,
                             label: 'Lirik',
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Membuka Lirik Sinkron (Fase 3.3)')),
+                              Navigator.of(context).push(
+                                PageRouteBuilder<void>(
+                                  pageBuilder: (context, animation, secondaryAnimation) =>
+                                      const LyricsScreen(),
+                                  transitionsBuilder:
+                                      (context, animation, secondaryAnimation, child) {
+                                    const begin = Offset(0.0, 1.0);
+                                    const end = Offset.zero;
+                                    const curve = Curves.easeOutCubic;
+                                    final tween =
+                                        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                                    return SlideTransition(position: animation.drive(tween), child: child);
+                                  },
+                                ),
                               );
                             },
                           ),

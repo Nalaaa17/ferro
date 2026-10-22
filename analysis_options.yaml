@@ -1,0 +1,20 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - web/**
+    - '**/*.g.dart'
+
+linter:
+  rules:
+    - prefer_single_quotes
+    - always_use_package_imports
+    - unawaited_futures
+    - avoid_relative_lib_imports
+    - avoid_print
+    - cancel_subscriptions
+    - close_sinks
+    - prefer_const_constructors
+    - prefer_const_declarations
